@@ -5,7 +5,7 @@ from webmax import Message
 from webmax.entities import User
 
 async def main():
-    client = WebMaxClient()
+    client = WebMaxClient(phone='+7')
 
     @client.on_start()
     async def start():

@@ -21,6 +21,9 @@ share/python-wheels/
 *.egg-info/
 *.egg
 
+# Credentials
+credentials.json
+
 # Virtual environments
 venv/
 ENV/
