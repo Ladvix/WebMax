@@ -8,6 +8,11 @@
     <strong>Python библиотека для взаимодействия с API мессенджера Max</strong>
 </p>
 
+<p align="center">
+    <img src="https://img.shields.io/badge/python-3.10+-3776AB.svg" alt="Python 3.11+">
+    <img src="https://img.shields.io/badge/License-MIT-2f9872.svg" alt="License: MIT">
+</p>
+
 > <h3><strong>Дисклеймер</strong></h3>
 > 
 > *   Это **неофициальная** библиотека для работы с API мессенджера Max.
@@ -61,6 +66,7 @@ async def main():
 
 asyncio.run(main())
 ```
+
 
 
 
