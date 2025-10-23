@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="assets/logo.png" alt="WebMax" width="256">
+    <img src="assets/logo.png" alt="WebMax" width="150">
 </p>
 
 <p align="center">
@@ -54,5 +54,6 @@ async def main():
 
 asyncio.run(main())
 ```
+
 
 
