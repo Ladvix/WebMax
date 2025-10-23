@@ -31,12 +31,15 @@ from webmax.entities import User
 async def main():
     client = WebMaxClient(phone='+1234567890')
 
+    # Обработчик старта юзербота
     @client.on_start()
     async def start():
         print(client.me)
 
+    # Обработчик получения сообщений
     @client.on_message()
     async def handle_message(message: Message):
+        # Функция автоответчика
         if message.sender_id != client.me.id:
             try:
                 sender = client.contacts[message.sender_id]
@@ -44,10 +47,12 @@ async def main():
             except:
                 pass
 
+    # Обработчик удаления сообщений
     @client.on_message_removed()
     async def handle_message_removed(message: Message):
         print(message)
 
+    # Обработчик печатания сообщения
     @client.on_typing()
     async def handle_typing(chat_id: int, user: User):
         print(f'Пользователь {user.firstname} печатает вам сообщение...')
@@ -56,6 +61,7 @@ async def main():
 
 asyncio.run(main())
 ```
+
 
 
 
