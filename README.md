@@ -2,6 +2,8 @@
     <img src="assets/logo.png" alt="WebMax" width="150">
 </p>
 
+<p align="center"></p>
+
 <p align="center">
     <strong>Python библиотека для взаимодействия с API мессенджера Max</strong>
 </p>
@@ -54,6 +56,7 @@ async def main():
 
 asyncio.run(main())
 ```
+
 
 
 
