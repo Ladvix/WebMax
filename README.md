@@ -2,11 +2,9 @@
     <img src="assets/logo.png" alt="WebMax" width="150">
 </p>
 
-<p align="center"></p>
-
-<p align="center">
-    <strong>Python библиотека для взаимодействия с API мессенджера Max</strong>
-</p>
+<h1 align="center">
+    <strong>WebMax</strong>
+</h1>
 
 <p align="center">
     <img src="https://img.shields.io/badge/python-3.10+-3776AB.svg" alt="Python 3.11+">
@@ -22,7 +20,7 @@
 
 ## Описание
 
-**`webmax`** — асинхронная Python библиотека для работы с API мессенджера Max. Предоставляет возможность взаимодействовать с Max через WebSocket соединение.
+**`webmax`** — асинхронная Python библиотека для работы с API мессенджера Max. Позволяет взаимодействовать с Max через WebSocket соединение. Данная библиотека может быть использована для разработки юзерботов.
 
 ## Базовый пример
 
@@ -66,10 +64,3 @@ async def main():
 
 asyncio.run(main())
 ```
-
-
-
-
-
-
-

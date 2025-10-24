@@ -1,6 +1,6 @@
 from . import payloads
-from .entities import Message, User
 from .static import Opcode
+from .entities import Message, User
 
 class ApiMixin():
     def __init__(self):

@@ -1,4 +1,3 @@
-import time
 from .static import ElementType, MessageStatus, MessageType
 
 class Element:
@@ -248,3 +247,14 @@ class User:
     def __str__(self):
         full_name = f'{self.firstname} {self.lastname}'.strip()
         return f'User {self.id}: {full_name}'
+
+class ChatAction():
+    def __init__(
+        self,
+        type: str,
+        chat_id: int,
+        user: User
+    ):
+        self.type = type
+        self.chat_id = chat_id
+        self.user = user

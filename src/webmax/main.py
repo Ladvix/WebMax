@@ -40,7 +40,7 @@ class WebMaxClient(ApiMixin, AuthMixin, WebsocketMixin, HandlersMixin):
         
         self.on_message_handlers: List[Callable[[Dict[str, Any]], None]] = []
         self.on_message_removed_handlers: List[Callable[[Dict[str, Any]], None]] = []
-        self.on_typing_handlers: List[Callable[[Dict[str, Any]], None]] = []
+        self.on_chat_action_handlers: List[tuple[str, Callable]] = []
         self.on_start_handler: Callable[[], None] = None
 
         self.credentials = credentials_utils.read()

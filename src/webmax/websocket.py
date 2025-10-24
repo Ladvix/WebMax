@@ -1,9 +1,9 @@
 import json
 import asyncio
 import websockets
-from .entities import Message
+from .static import MessageStatus, Opcode, ChatActions
+from .entities import Message, ChatAction
 from .exceptions import ApiError
-from .static import MessageStatus, Opcode
 
 class WebsocketMixin():
     def __init__(self):
@@ -65,15 +65,15 @@ class WebsocketMixin():
         if message.status == MessageStatus.REMOVED:
             for handler in self.on_message_removed_handlers:
                 if asyncio.iscoroutinefunction(handler):
-                    await handler(message)
+                    await handler(message=message)
                 else:
-                    handler(message)
+                    handler(message=message)
         else:
             for handler in self.on_message_handlers:
                 if asyncio.iscoroutinefunction(handler):
-                    await handler(message)
+                    await handler(message=message)
                 else:
-                    handler(message)
+                    handler(message=message)
 
     async def notif_typing(self, payload):
         chat_id = payload.get('chatId')
@@ -83,11 +83,18 @@ class WebsocketMixin():
             await self.get_contacts_info(contact_ids=[user_id])
         user = self.contacts.get(user_id)
 
-        for handler in self.on_typing_handlers:
-            if asyncio.iscoroutinefunction(handler):
-                await handler(chat_id=chat_id, user=user)
-            else:
-                handler(chat_id=chat_id, user=user)
+        action = ChatAction(
+            type=ChatActions.TYPING,
+            chat_id=chat_id,
+            user=user
+        )
+
+        for action_filter, handler in self.on_chat_action_handlers:
+            if action_filter is None or action_filter == 'typing':
+                if asyncio.iscoroutinefunction(handler):
+                    await handler(action)
+                else:
+                    handler(action)
 
     async def ping_loop(self):
         '''

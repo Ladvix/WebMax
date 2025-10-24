@@ -12,6 +12,9 @@ class MessageType():
 class MessageStatus():
     REMOVED = 'REMOVED'
 
+class ChatActions():
+    TYPING = 'typing'
+
 class Constants():
     PHONE_REGEX = r'^\+?\d{10,15}$'
 
