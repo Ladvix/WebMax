@@ -9,6 +9,16 @@ class MessageType():
     SYSTEM = 'SYSTEM'
     SERVICE = 'SERVICE'
 
+class ChatType(str):
+    DIALOG = 'DIALOG'
+    CHAT = 'CHAT'
+    CHANNEL = 'CHANNEL'
+
+class AccessType(str):
+    PUBLIC = 'PUBLIC'
+    PRIVATE = 'PRIVATE'
+    SECRET = 'SECRET'
+
 class MessageStatus():
     REMOVED = 'REMOVED'
 

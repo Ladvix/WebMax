@@ -22,12 +22,12 @@ async def main():
 
     @client.on_message_removed()
     async def handle_message_removed(message: Message):
-        print(message)
+        print(message.text)
 
     @client.on_chat_action()
     async def handle_chat_action(action: ChatAction):
         if action.type == ChatActions.TYPING:
-            print(f'Пользователь {action.user.firstname} печатает вам сообщение...')
+            print(f'Пользователь {action.user.firstname} печатает вам сообщение')
 
     await client.start()
 

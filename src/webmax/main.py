@@ -1,7 +1,6 @@
 import uuid
 import asyncio
 from typing import Callable, List, Dict, Any
-
 from . import payloads
 from .api import ApiMixin
 from .auth import AuthMixin

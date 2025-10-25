@@ -1,6 +1,8 @@
+import os
 import json
 import asyncio
 import websockets
+from .utils import credentials_utils
 from .static import MessageStatus, Opcode, ChatActions
 from .entities import Message, ChatAction
 from .exceptions import ApiError
@@ -56,7 +58,9 @@ class WebsocketMixin():
         raw_data = payload.get('message', {})
         chat_id = payload.get('chatId')
         raw_data['chat_id'] = chat_id
-        message = Message.from_raw_data(raw_data, self)
+        message = Message.from_raw_data(raw_data=raw_data, chat_id=chat_id, client=self)
+
+        chat = self.chats.get(chat_id)
 
         if not (message.sender_id in self.contacts):
             await self.get_contacts_info(contact_ids=[message.sender_id])
@@ -79,13 +83,15 @@ class WebsocketMixin():
         chat_id = payload.get('chatId')
         user_id = payload.get('userId')
 
+        chat = self.chats.get(chat_id)
+
         if not (user_id in self.contacts):
             await self.get_contacts_info(contact_ids=[user_id])
         user = self.contacts.get(user_id)
 
         action = ChatAction(
             type=ChatActions.TYPING,
-            chat_id=chat_id,
+            chat=chat,
             user=user
         )
 
@@ -137,8 +143,10 @@ class WebsocketMixin():
             if cmd == 1 and seq == expected_seq:
                 return response
             elif cmd == 3:
-                error_message = payload.get('localizedMessage', 'Unknown error')
-                error_type = payload.get('error', 'Unknown error type')
+                error_message = payload.get('localizedMessage', 'Неизвестная ошибка')
+                error_type = payload.get('error', 'Неизвестный тип ошибки')
+                if error_type == 'login.token':
+                    os.remove(credentials_utils.CREDENTIALS_PATH)
                 raise ApiError(f'{error_message} ({error_type})')
         except asyncio.CancelledError:
             if expected_seq in self._response_waiters:
