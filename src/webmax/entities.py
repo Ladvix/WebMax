@@ -1,4 +1,3 @@
-from .main import WebMaxClient
 from .static import AccessType, ChatType, ElementType, MessageStatus, MessageType
 
 class Element:
@@ -92,7 +91,7 @@ class MessageLink:
 class Message:
     def __init__(
         self,
-        client: WebMaxClient,
+        client,
         sender_id: int,
         reaction_info: ReactionInfo,
         id: str,
