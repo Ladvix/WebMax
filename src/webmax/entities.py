@@ -1,4 +1,4 @@
-from .static import AccessType, ChatType, ElementType, MessageStatus, MessageType
+from .static import AccessType, ChatType, ElementType, MessageLinkType, MessageStatus, MessageType
 
 class Element:
     def __init__(
@@ -92,14 +92,14 @@ class Message:
     def __init__(
         self,
         client,
-        sender_id: int,
+        chat: 'Chat',
+        sender: 'User',
         reaction_info: ReactionInfo,
         id: str,
         time: int,
         text: str,
         type: MessageType,
         raw_data: dict,
-        chat_id: int | None = None,
         options: list[str] | None = None,
         link: MessageLink | None = None,
         status: MessageStatus | None = None,
@@ -107,8 +107,8 @@ class Message:
         attaches: list[PhotoAttach | VideoAttach | FileAttach] | None = None
     ):
         self.client = client
-        self.chat_id = chat_id
-        self.sender_id = sender_id
+        self.chat = chat
+        self.sender = sender
         self.elements = elements or []
         self.options = options or []
         self.id = id
@@ -127,24 +127,29 @@ class Message:
         text = raw_data.get('text')
         sender_id = raw_data.get('sender')
         status = raw_data.get('status')
-        type_ = raw_data.get('type')
+        type = raw_data.get('type')
         time = raw_data.get('time')
         attaches = raw_data.get('attaches')
         reaction_info = raw_data.get('reaction_info')
         options = raw_data.get('options')
+
         raw_elements = raw_data.get('elements')
         elements = []
         if raw_elements:
             for element in raw_elements:
                 elements.append(Element.from_raw_data(element))
+
         link = raw_data.get('link')
         if link:
             link = MessageLink.from_raw_data(link)
 
+        chat = client.chats.get(chat_id) if chat_id and client else None
+        sender = client.contacts.get(sender_id) if sender_id and client else None
+
         return Message(
             client=client,
-            chat_id=chat_id,
-            sender_id=sender_id,
+            chat=chat,
+            sender=sender,
             elements=elements,
             reaction_info=reaction_info,
             options=options,
@@ -153,27 +158,27 @@ class Message:
             link=link,
             text=text,
             status=status,
-            type=type_,
+            type=type,
             attaches=attaches,
             raw_data=raw_data
         )
 
     async def reply(self, text: str, cid: int, elements: list[Element] | None = None, attaches: list[PhotoAttach | VideoAttach | FileAttach] | None = None) -> 'Message':
         link = {
-            'type': 'REPLY',
+            'type': MessageLinkType.REPLY,
             'messageId': self.id
         }
-        message = await self.client.send_message(chat_id=self.chat_id, cid=cid, text=text, link=link, elements=elements, attaches=attaches)
+        message = await self.client.send_message(chat_id=self.chat.id, cid=cid, text=text, link=link, elements=elements, attaches=attaches)
         return message
 
     async def delete(self, for_me: bool | None = None) -> dict:
-        return await self.client.delete_message(chat_id=self.chat_id, message_ids=[self.id], for_me=for_me)
+        return await self.client.delete_message(chat_id=self.chat.id, message_ids=[self.id], for_me=for_me)
 
     def __repr__(self) -> str:
-        return f'<Message(sender_id={self.sender_id!r}, text={self.text!r})>'
+        return f'<Message(sender_id={self.sender.id!r}, text={self.text!r})>'
 
     def __str__(self) -> str:
-        return f'Message {self.id} from {self.sender_id}: {self.text}'
+        return f'Message {self.id} from {self.sender.id}: {self.text}'
 
 class User:
     def __init__(
@@ -254,6 +259,9 @@ class User:
 class Chat:
     def __init__(
         self,
+        client,
+        id: int,
+        cid: int,
         participants_count: int,
         access: AccessType,
         type: ChatType,
@@ -261,7 +269,6 @@ class Chat:
         last_delayed_update_time: int,
         options: dict[str, bool],
         modified: int,
-        id: int,
         admin_participants: dict[int, dict],
         participants: dict[int],
         owner: int,
@@ -271,7 +278,6 @@ class Chat:
         messages_count: int,
         admins: list[int],
         status: str,
-        cid: int,
         restrictions: int | None = None,
         title: str | None = None,
         last_message: Message | None = None,
@@ -282,7 +288,9 @@ class Chat:
         invited_by: int | None = None,
         link: str | None = None
     ):
+        self.client = client
         self.id = id
+        self.cid = cid
         self.participants_count = participants_count
         self.access = access
         self.invited_by = invited_by
@@ -308,11 +316,11 @@ class Chat:
         self.admins = admins or []
         self.restrictions = restrictions
         self.status = status
-        self.cid = cid
 
     @classmethod
-    def from_raw_data(cls, raw_data: dict[str]) -> 'Chat':
+    def from_raw_data(cls, raw_data: dict[str], client=None) -> 'Chat':
         id = raw_data.get('id')
+        cid = raw_data.get('cid')
         participants_count = raw_data.get('participantsCount')
         access = raw_data.get('access')
         type = raw_data.get('type')
@@ -322,7 +330,6 @@ class Chat:
         modified = raw_data.get('modified')
         admin_participants = raw_data.get('adminParticipants')
         participants = raw_data.get('participants')
-        admin_participants = raw_data.get('adminParticipants')
         owner = raw_data.get('owner')
         join_time = raw_data.get('joinTime')
         created = raw_data.get('created')
@@ -331,10 +338,9 @@ class Chat:
         created = raw_data.get('created')
         admins = raw_data.get('admins')
         status = raw_data.get('status')
-        cid = raw_data.get('cid')
         restrictions = raw_data.get('restrictions')
         title = raw_data.get('title')
-        last_message = raw_data.get('lastMessage')
+        raw_last_message = raw_data.get('lastMessage')
         prev_message_id = raw_data.get('prevMessageId')
         base_raw_icon_url = raw_data.get('baseRawIconUrl')
         base_icon_url = raw_data.get('baseIconUrl')
@@ -342,7 +348,11 @@ class Chat:
         invited_by = raw_data.get('invitedBy')
         link = raw_data.get('link')
 
+        if raw_last_message:
+            last_message = Message.from_raw_data(raw_last_message, chat_id=id, client=client)
+
         return Chat(
+            client=client,
             id=id,
             participants_count=participants_count,
             access=access,

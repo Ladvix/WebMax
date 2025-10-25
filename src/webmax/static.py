@@ -9,6 +9,12 @@ class MessageType():
     SYSTEM = 'SYSTEM'
     SERVICE = 'SERVICE'
 
+class MessageLinkType():
+    REPLY = 'REPLY'
+
+class MessageStatus():
+    REMOVED = 'REMOVED'
+
 class ChatType(str):
     DIALOG = 'DIALOG'
     CHAT = 'CHAT'
@@ -18,9 +24,6 @@ class AccessType(str):
     PUBLIC = 'PUBLIC'
     PRIVATE = 'PRIVATE'
     SECRET = 'SECRET'
-
-class MessageStatus():
-    REMOVED = 'REMOVED'
 
 class ChatActions():
     TYPING = 'typing'

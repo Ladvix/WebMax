@@ -62,9 +62,9 @@ class WebsocketMixin():
 
         chat = self.chats.get(chat_id)
 
-        if not (message.sender_id in self.contacts):
-            await self.get_contacts_info(contact_ids=[message.sender_id])
-        contact = self.contacts.get(message.sender_id)
+        if not (message.sender.id in self.contacts):
+            await self.get_contacts_info(contact_ids=[message.sender.id])
+        contact = self.contacts.get(message.sender.id)
 
         if message.status == MessageStatus.REMOVED:
             for handler in self.on_message_removed_handlers:

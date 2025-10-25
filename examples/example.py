@@ -13,10 +13,9 @@ async def main():
 
     @client.on_message()
     async def handle_message(message: Message):
-        if message.sender_id != client.me.id:
+        if message.sender.id != client.me.id:
             try:
-                sender = client.contacts[message.sender_id]
-                await message.reply(text=f'Привет, {sender.firstname}. Сейчас я занят, отвечу позже', cid=int(time.time()))
+                await message.reply(text=f'Привет, {message.sender.firstname}. Сейчас я занят, отвечу позже', cid=int(time.time()))
             except:
                 pass
 

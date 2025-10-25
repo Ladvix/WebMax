@@ -68,13 +68,12 @@ class ApiMixin():
         chats = payload.get('chats', [])
         contacts = payload.get('contacts', [])
 
-        for chat in chats:
-            chat_id = chat['id']
-            chat = Chat.from_raw_data(chat)
-            self.chats[chat_id] = chat
+        for raw_chat in chats:
+            chat = Chat.from_raw_data(raw_data=raw_chat, client=self)
+            self.chats[chat.id] = chat
 
-        for contact in contacts:
-            user = User.from_raw_data(contact)
+        for raw_contact in contacts:
+            user = User.from_raw_data(raw_contact)
             self.contacts[user.id] = user
 
         profile = payload.get('profile', {})
