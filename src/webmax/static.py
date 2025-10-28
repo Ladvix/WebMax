@@ -26,7 +26,15 @@ class AccessType(str):
     SECRET = 'SECRET'
 
 class ChatActions():
-    TYPING = 'typing'
+    TYPING = 'TYPING'
+    FILE = 'FILE'
+    STICKER = 'STICKER'
+
+class ContactActions():
+    ADD = 'ADD'
+    REMOVE = 'REMOVE'
+    BLOCK = 'BLOCK'
+    UNBLOCK = 'UNBLOCK'
 
 class Constants():
     PHONE_REGEX = r'^\+?\d{10,15}$'
@@ -41,8 +49,11 @@ class Opcode():
     LOG_OUT = 20
     CONTACT_INFO = 32
     CONTACT_UPDATE = 34
+    DELETE_CHAT = 52
     SEND_MESSAGE = 64
     DELETE_MESSAGE = 66
     EDIT_MESSAGE = 67
+    CHAT_MEMBERS_UPDATE = 77
+    SESSIONS_CLOSE = 97
     NOTIF_MESSAGE = 128
-    NOTIF_TYPING = 129
+    NOTIF_CHAT_ACTION = 129

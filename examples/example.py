@@ -5,7 +5,7 @@ from webmax.static import ChatActions
 from webmax.entities import Message, ChatAction
 
 async def main():
-    client = WebMaxClient(phone='+1234567890')
+    client = WebMaxClient(name='session', phone='+1234567890')
 
     @client.on_start()
     async def start():
@@ -13,11 +13,12 @@ async def main():
 
     @client.on_message()
     async def handle_message(message: Message):
-        if message.sender.id != client.me.id:
-            try:
-                await message.reply(text=f'Привет, {message.sender.firstname}. Сейчас я занят, отвечу позже', cid=int(time.time()))
-            except:
-                pass
+        if message.sender:
+            if message.sender.id != client.me.id:
+                try:
+                    await message.reply(text=f'Привет, {message.sender.firstname}. Сейчас я занят, отвечу позже', cid=int(time.time()))
+                except:
+                    pass
 
     @client.on_message_removed()
     async def handle_message_removed(message: Message):
@@ -27,6 +28,10 @@ async def main():
     async def handle_chat_action(action: ChatAction):
         if action.type == ChatActions.TYPING:
             print(f'Пользователь {action.user.firstname} печатает вам сообщение')
+        elif action.type == ChatActions.STICKER:
+            print(f'Пользователь {action.user.firstname} выбирает стикер')
+        elif action.type == ChatActions.FILE:
+            print(f'Пользователь {action.user.firstname} отправляет файл')
 
     await client.start()
 

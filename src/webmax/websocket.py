@@ -2,8 +2,7 @@ import os
 import json
 import asyncio
 import websockets
-from .utils import credentials_utils
-from .static import MessageStatus, Opcode, ChatActions
+from .static import Constants, MessageStatus, Opcode, ChatActions
 from .entities import Message, ChatAction
 from .exceptions import ApiError
 
@@ -49,8 +48,8 @@ class WebsocketMixin():
 
                 if opcode == Opcode.NOTIF_MESSAGE:
                     await self.notif_message(payload)
-                elif opcode == Opcode.NOTIF_TYPING:
-                    await self.notif_typing(payload)
+                elif opcode == Opcode.NOTIF_CHAT_ACTION:
+                    await self.notif_chat_action(payload)
             except asyncio.CancelledError:
                 break
 
@@ -62,6 +61,9 @@ class WebsocketMixin():
 
         chat = self.chats.get(chat_id)
 
+        if message.sender is None:
+            return
+        
         if not (message.sender.id in self.contacts):
             await self.get_contacts_info(contact_ids=[message.sender.id])
         contact = self.contacts.get(message.sender.id)
@@ -79,7 +81,8 @@ class WebsocketMixin():
                 else:
                     handler(message=message)
 
-    async def notif_typing(self, payload):
+    async def notif_chat_action(self, payload):
+        type = payload.get('type')
         chat_id = payload.get('chatId')
         user_id = payload.get('userId')
 
@@ -90,7 +93,7 @@ class WebsocketMixin():
         user = self.contacts.get(user_id)
 
         action = ChatAction(
-            type=ChatActions.TYPING,
+            type=type or ChatActions.TYPING,
             chat=chat,
             user=user
         )
@@ -146,7 +149,7 @@ class WebsocketMixin():
                 error_message = payload.get('localizedMessage', 'Неизвестная ошибка')
                 error_type = payload.get('error', 'Неизвестный тип ошибки')
                 if error_type == 'login.token':
-                    os.remove(credentials_utils.CREDENTIALS_PATH)
+                    os.remove(Constants.DB_PATH)
                 raise ApiError(f'{error_message} ({error_type})')
         except asyncio.CancelledError:
             if expected_seq in self._response_waiters:

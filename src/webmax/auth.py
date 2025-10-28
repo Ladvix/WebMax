@@ -18,9 +18,4 @@ class AuthMixin():
         print(f'Вы авторизованы как {full_name}.')
 
         self.token = token
-        self.credentials = {
-            'device_id': self.device_id,
-            'token': self.token,
-            'phone': self.phone
-        }
-        credentials_utils.save(self.credentials)
+        await credentials_utils.save(self.db, device_id=self.device_id, token=self.token, phone=self.phone)

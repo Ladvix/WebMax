@@ -2,6 +2,8 @@ import re
 from dataclasses import dataclass, asdict
 
 def snake_to_camel(name: str):
+    if name.startswith('_'):
+        return name
     return re.sub(r'_([a-z])', lambda m: m.group(1).upper(), name)
 
 def as_camel_dict(obj):
@@ -98,7 +100,7 @@ class ContactUpdate():
 
     def to_dict(self):
         return as_camel_dict(self)
-    
+
 @dataclass
 class Element():
     type: str
@@ -137,9 +139,9 @@ class Message():
 
 @dataclass
 class SendMessage():
-    chat_id: int
     message: Message
     notify: str
+    chat_id: int
 
     def to_dict(self):
         return as_camel_dict(self)
@@ -148,7 +150,7 @@ class SendMessage():
 class DeleteMessage():
     chat_id: int
     message_ids: list[int]
-    for_me: bool
+    for_me: bool = True
 
     def to_dict(self):
         return as_camel_dict(self)
@@ -160,6 +162,35 @@ class EditMessage():
     text: str
     elements: list
     attaches: list
+
+    def to_dict(self):
+        return as_camel_dict(self)
+
+@dataclass
+class NewGroup():
+    title: str
+    user_ids: list
+    _type: str = 'CONTROL'
+    event: str = 'new'
+    chat_type: str = 'CHAT'
+
+    def to_dict(self):
+        return as_camel_dict(self)
+
+@dataclass
+class DeleteChat():
+    chat_id: int
+    for_all: bool = True
+
+    def to_dict(self):
+        return as_camel_dict(self)
+
+@dataclass
+class UpdateChatMembers():
+    chat_id: int
+    user_ids: list[int]
+    operation: str
+    show_history: bool = True
 
     def to_dict(self):
         return as_camel_dict(self)

@@ -7,7 +7,8 @@ name = "webmax"
 version = "0.1.0"
 description = "Web Max API client"
 dependencies = [
-    "websockets"
+    "websockets",
+    "aiosqlite"
 ]
 
 [tool.setuptools.packages.find]

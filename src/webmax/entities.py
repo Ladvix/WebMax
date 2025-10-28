@@ -96,6 +96,7 @@ class Message:
         sender: 'User',
         reaction_info: ReactionInfo,
         id: str,
+        cid: int,
         time: int,
         text: str,
         type: MessageType,
@@ -112,6 +113,7 @@ class Message:
         self.elements = elements or []
         self.options = options or []
         self.id = id
+        self.cid = cid
         self.time = time
         self.text = text
         self.type = type
@@ -124,6 +126,7 @@ class Message:
     @classmethod
     def from_raw_data(cls, raw_data: dict[str], chat_id: int | None = None, client=None) -> 'Message':
         id = raw_data.get('id')
+        cid = raw_data.get('cid')
         text = raw_data.get('text')
         sender_id = raw_data.get('sender')
         status = raw_data.get('status')
@@ -154,6 +157,7 @@ class Message:
             reaction_info=reaction_info,
             options=options,
             id=id,
+            cid=cid,
             time=time,
             link=link,
             text=text,
@@ -171,7 +175,7 @@ class Message:
         message = await self.client.send_message(chat_id=self.chat.id, cid=cid, text=text, link=link, elements=elements, attaches=attaches)
         return message
 
-    async def delete(self, for_me: bool | None = None) -> dict:
+    async def delete(self, for_me: bool = True) -> dict:
         return await self.client.delete_message(chat_id=self.chat.id, message_ids=[self.id], for_me=for_me)
 
     def __repr__(self) -> str:
@@ -251,7 +255,7 @@ class User:
 
     def __repr__(self) -> str:
         return f'User(id={self.id!r}, first_name={self.firstname!r}, last_name={self.lastname!r}, status={self.account_status!r})'
-    
+
     def __str__(self) -> str:
         full_name = f'{self.firstname} {self.lastname}'.strip()
         return f'User {self.id}: {full_name}'
@@ -381,7 +385,13 @@ class Chat:
             invited_by=invited_by,
             link=link
         )
-    
+
+    async def delete(self, for_all: bool = True) -> dict:
+        return await self.client.delete_chat(id=self.id, for_all=for_all)
+
+    async def add_user(self, id: int, show_history: bool = True) -> dict:
+        return await self.client.update_chat_members(chat_id=self.id, user_ids=[id], show_history=show_history, operation='add')
+
     def __repr__(self) -> str:
         return f'Chat(id={self.id!r}, title={self.title!r}, type={self.type!r})'
 
