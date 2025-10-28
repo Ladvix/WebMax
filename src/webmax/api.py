@@ -140,7 +140,7 @@ class ApiMixin():
         response = await self.do_api_request(opcode=Opcode.DELETE_MESSAGE, payload=payload)
         return response
 
-    async def edit_message(self, chat_id: int, message_id: int, text: str, elements: list[Element] = [], attaches: list = [PhotoAttach | VideoAttach | FileAttach]) -> Message:
+    async def edit_message(self, chat_id: int, message_id: int, text: str, elements: list[Element] = [], attaches: list[PhotoAttach | VideoAttach | FileAttach] = []) -> Message:
         payload_instance = payloads.EditMessage(chat_id=chat_id, message_id=message_id, text=text, elements=elements, attaches=attaches)
         payload = payload_instance.to_dict()
 
@@ -148,7 +148,7 @@ class ApiMixin():
         payload = response.get('payload', {})
         raw_message = payload.get('message')
         if raw_message:
-            message = Message.from_raw_data(raw_data=raw_message, chat_id=chat_id)
+            message = Message.from_raw_data(raw_data=raw_message, chat_id=chat_id, client=self)
         return message
 
     async def create_group(self, cid: int, title: str, user_ids: list[int] = [], notify: bool = True) -> Chat:

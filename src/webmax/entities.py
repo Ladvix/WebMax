@@ -92,15 +92,15 @@ class Message:
     def __init__(
         self,
         client,
-        chat: 'Chat',
-        sender: 'User',
-        reaction_info: ReactionInfo,
         id: str,
         cid: int,
-        time: int,
         text: str,
-        type: MessageType,
         raw_data: dict,
+        chat_id: int | None = None,
+        sender_id: int | None = None,
+        reaction_info: ReactionInfo | None = None,
+        time: int | None = None,
+        type: MessageType | None = None,
         options: list[str] | None = None,
         link: MessageLink | None = None,
         status: MessageStatus | None = None,
@@ -108,8 +108,8 @@ class Message:
         attaches: list[PhotoAttach | VideoAttach | FileAttach] | None = None
     ):
         self.client = client
-        self.chat = chat
-        self.sender = sender
+        self.chat_id = chat_id
+        self.sender_id = sender_id
         self.elements = elements or []
         self.options = options or []
         self.id = id
@@ -146,13 +146,10 @@ class Message:
         if link:
             link = MessageLink.from_raw_data(link)
 
-        chat = client.chats.get(chat_id) if chat_id and client else None
-        sender = client.contacts.get(sender_id) if sender_id and client else None
-
         return Message(
             client=client,
-            chat=chat,
-            sender=sender,
+            chat_id=chat_id,
+            sender_id=sender_id,
             elements=elements,
             reaction_info=reaction_info,
             options=options,
@@ -172,11 +169,27 @@ class Message:
             'type': MessageLinkType.REPLY,
             'messageId': self.id
         }
-        message = await self.client.send_message(chat_id=self.chat.id, cid=cid, text=text, link=link, elements=elements, attaches=attaches)
+        message = await self.client.send_message(chat_id=self.chat_id, cid=cid, text=text, link=link, elements=elements, attaches=attaches)
         return message
 
     async def delete(self, for_me: bool = True) -> dict:
-        return await self.client.delete_message(chat_id=self.chat.id, message_ids=[self.id], for_me=for_me)
+        return await self.client.delete_message(chat_id=self.chat_id, message_ids=[self.id], for_me=for_me)
+
+    async def edit(self, text: str, elements: list[Element] | None = None, attaches: list[PhotoAttach | VideoAttach | FileAttach] | None = None) -> 'Message':
+        message = await self.client.edit_message(chat_id=self.chat_id, message_id=self.id, text=text, elements=elements, attaches=attaches)
+        return message
+
+    @property
+    def sender(self) -> 'User':
+        if self.client and self.sender_id is not None:
+            return self.client.contacts.get(self.sender_id)
+        return None
+
+    @property
+    def chat(self) -> 'Chat':
+        if self.client and self.chat_id is not None:
+            return self.client.chats.get(self.chat_id)
+        return None
 
     def __repr__(self) -> str:
         return f'<Message(sender_id={self.sender.id!r}, text={self.text!r})>'
@@ -187,7 +200,7 @@ class Message:
 class User:
     def __init__(
         self,
-        account_status: int,
+        status: int,
         update_time: int,
         id: int,
         firstname: str,
@@ -202,7 +215,7 @@ class User:
         web_app: str | None = None,
         menu_button: dict[str] | None = None
     ):
-        self.account_status = account_status
+        self.status = status
         self.update_time = update_time
         self.id = id
         self.firstname = firstname
@@ -225,7 +238,7 @@ class User:
         firstname = name_info.get('firstName', '')
         lastname = name_info.get('lastName', '')
         options = raw_data.get('options', [])
-        account_status = raw_data.get('accountStatus')
+        status = raw_data.get('accountStatus')
         update_time = raw_data.get('updateTime')
         description = raw_data.get('description')
         gender = raw_data.get('gender')
@@ -237,7 +250,7 @@ class User:
         photo_id = raw_data.get('photo_id')
 
         return User(
-            account_status=account_status,
+            status=status,
             update_time=update_time,
             id=id,
             firstname=firstname,
@@ -254,7 +267,7 @@ class User:
         )
 
     def __repr__(self) -> str:
-        return f'User(id={self.id!r}, first_name={self.firstname!r}, last_name={self.lastname!r}, status={self.account_status!r})'
+        return f'User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r}, status={self.status!r})'
 
     def __str__(self) -> str:
         full_name = f'{self.firstname} {self.lastname}'.strip()
@@ -265,23 +278,23 @@ class Chat:
         self,
         client,
         id: int,
-        cid: int,
-        participants_count: int,
-        access: AccessType,
-        type: ChatType,
-        last_fire_delayed_error_time: int,
-        last_delayed_update_time: int,
-        options: dict[str, bool],
-        modified: int,
-        admin_participants: dict[int, dict],
-        participants: dict[int],
-        owner: int,
-        join_time: int,
-        created: int,
-        last_event_time: int,
-        messages_count: int,
-        admins: list[int],
-        status: str,
+        cid: int | None = None,
+        participants_count: int | None = None,
+        access: AccessType | None = None,
+        type: ChatType | None = None,
+        last_fire_delayed_error_time: int | None = None,
+        last_delayed_update_time: int | None = None,
+        options: dict[str, bool] | None = None,
+        modified: int | None = None,
+        admin_participants: dict[int, dict] | None = None,
+        participants: dict[int] | None = None,
+        owner: int | None = None,
+        join_time: int | None = None,
+        created: int | None = None,
+        last_event_time: int | None = None,
+        messages_count: int | None = None,
+        admins: list[int] | None = None,
+        status: str | None = None,
         restrictions: int | None = None,
         title: str | None = None,
         last_message: Message | None = None,
@@ -353,7 +366,7 @@ class Chat:
         link = raw_data.get('link')
 
         if raw_last_message:
-            last_message = Message.from_raw_data(raw_last_message, chat_id=id, client=client)
+            last_message = Message.from_raw_data(raw_data=raw_last_message, chat_id=id, client=client)
 
         return Chat(
             client=client,

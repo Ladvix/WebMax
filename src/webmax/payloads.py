@@ -169,7 +169,7 @@ class EditMessage():
 @dataclass
 class NewGroup():
     title: str
-    user_ids: list
+    user_ids: list[int]
     _type: str = 'CONTROL'
     event: str = 'new'
     chat_type: str = 'CHAT'

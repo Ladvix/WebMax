@@ -63,7 +63,7 @@ class WebsocketMixin():
 
         if message.sender is None:
             return
-        
+
         if not (message.sender.id in self.contacts):
             await self.get_contacts_info(contact_ids=[message.sender.id])
         contact = self.contacts.get(message.sender.id)
