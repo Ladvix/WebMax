@@ -4,11 +4,10 @@ from .static import Constants
 from .exceptions import InvalidPhoneError
 
 class AuthMixin():
-    def __init__(self):
+    async def auth(self):
         if not re.match(Constants.PHONE_REGEX, self.phone):
             raise InvalidPhoneError(self.phone)
 
-    async def auth(self):
         temp_token = await self.send_code(phone=self.phone)
         print(f'На номер {self.phone} был отправлен код подтверждения.')
         code = input('Введите полученный вами код: ')

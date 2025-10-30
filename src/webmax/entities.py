@@ -1,3 +1,4 @@
+from . import payloads
 from .static import AccessType, ChatType, ElementType, MessageLinkType, MessageStatus, MessageType
 
 class Element:
@@ -165,10 +166,11 @@ class Message:
         )
 
     async def reply(self, text: str, cid: int, elements: list[Element] | None = None, attaches: list[PhotoAttach | VideoAttach | FileAttach] | None = None) -> 'Message':
-        link = {
-            'type': MessageLinkType.REPLY,
-            'messageId': self.id
-        }
+        link = payloads.MessageLink(
+            chat_id=self.chat_id,
+            message_id=self.id,
+            type=MessageLinkType.REPLY
+        )
         message = await self.client.send_message(chat_id=self.chat_id, cid=cid, text=text, link=link, elements=elements, attaches=attaches)
         return message
 

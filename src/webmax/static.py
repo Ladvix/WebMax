@@ -41,6 +41,7 @@ class Constants():
 
 class Opcode():
     PING = 1
+    NAVIGATION = 5
     INIT = 6
     CHANGE_PROFILE_DATA = 16
     AUTH_REQUEST = 17

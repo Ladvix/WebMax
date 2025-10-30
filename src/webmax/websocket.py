@@ -7,9 +7,6 @@ from .entities import Message, ChatAction
 from .exceptions import ApiError
 
 class WebsocketMixin():
-    def __init__(self):
-        pass
-
     async def connect_web_socket(self):
         try:
             self.websocket = await websockets.connect(self.uri, additional_headers=self.headers)
@@ -17,9 +14,6 @@ class WebsocketMixin():
             raise ConnectionError(f'Ошибка подключения. {e}')
 
     async def message_receiver(self):
-        '''
-        Получает и обрабатывает входящие сообщения от вебсокета.
-        '''
         while True:
             try:
                 raw_response = await self.websocket.recv()
@@ -36,9 +30,6 @@ class WebsocketMixin():
                 pass
 
     async def action_handler(self):
-        '''
-        Обрабатывает входящие и исходящие события.
-        '''
         while True:
             try:
                 response = await self._recv_queue.get()
@@ -106,18 +97,11 @@ class WebsocketMixin():
                     handler(action)
 
     async def ping_loop(self):
-        '''
-        Запускает фоновый цикл ping запросов,
-        чтобы избежать разрыва соединения
-        '''
         while True:
             await self.ping()
             await asyncio.sleep(60)
 
     async def do_api_request(self, opcode: int, payload: dict):
-        '''
-        Выполняет стандартный запрос к API по вебсокету.
-        '''
         if self.websocket is None:
             raise ConnectionError('Вебсокет не подключен')
 
