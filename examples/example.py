@@ -18,7 +18,6 @@ async def main():
             text='Hello from WebMax!'
         )
         await message.edit(text='Hello from Webmax! (edited)')
-        await client.change_profile_data(description='aa')
 
     # Обработчик сообщений
     @client.on_message()
