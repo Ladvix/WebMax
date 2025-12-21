@@ -6,7 +6,7 @@ from webmax.entities import Message, ChatAction
 
 async def main():
     # Инициализация клиента
-    client = WebMaxClient(name='session', phone='+1234567890')
+    client = WebMaxClient(session_name='session', phone='+79226669932')
 
     # Обработчик запуска клиента
     @client.on_start()
@@ -18,7 +18,6 @@ async def main():
             text='Hello from WebMax!'
         )
         await message.edit(text='Hello from Webmax! (edited)')
-        await client.change_profile_data(description='aa')
 
     # Обработчик сообщений
     @client.on_message()

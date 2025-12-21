@@ -1,10 +1,10 @@
 import uuid
 import asyncio
 from typing import Callable, List, Dict, Any
-from .database.db import Database
 from . import payloads
 from .api import ApiMixin
 from .auth import AuthMixin
+from .database.db import Database
 from .handlers import HandlersMixin
 from .websocket import WebsocketMixin
 from .utils import credentials_utils
@@ -16,18 +16,18 @@ class WebMaxClient(ApiMixin, AuthMixin, WebsocketMixin, HandlersMixin):
     https://web.max.ru
 
     Args:
-        phone (str = None): Номер телефона для авторизации (опционально, если пользователь уже авторизован).
-        device_id (str = None): ID устройства (опционально).
+        phone (str | None = None): Номер телефона для авторизации (опционально).
+        device_id (str | None = None): ID устройства (опционально).
 
     Raises:
         InvalidPhoneError: Неверный формат телефона.
-        NotAuthorizedError: Пользователь не авторизован, при этом номер телефона не был получен.
+        NotAuthorizedError: Пользователь не авторизован.
         ConnectionError: Ошибка подключения в вебсокету.
         ApiError: Ошибка на строне API.
     '''
 
-    def __init__(self, name: str, phone: str | None = None):
-        self.name = name
+    def __init__(self, session_name: str, phone: str | None = None):
+        self.session_name = session_name
         self.uri = 'wss://ws-api.oneme.ru/websocket'
         self.headers = {
             'origin': 'https://web.max.ru',
@@ -63,7 +63,7 @@ class WebMaxClient(ApiMixin, AuthMixin, WebsocketMixin, HandlersMixin):
 
         await self.connect_web_socket()
 
-        self.db = Database(db_path=f'{self.name}.db')
+        self.db = Database(db_path=f'{self.session_name}.db')
         await self.db.init()
 
         credentials = await credentials_utils.read(self.db)

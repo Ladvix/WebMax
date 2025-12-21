@@ -2,7 +2,7 @@ import os
 import json
 import asyncio
 import websockets
-from .static import Constants, MessageStatus, Opcode, ChatActions
+from .static import MessageStatus, Opcode, ChatActions
 from .entities import Message, ChatAction
 from .exceptions import ApiError
 
@@ -44,7 +44,7 @@ class WebsocketMixin():
             except asyncio.CancelledError:
                 break
 
-    async def notif_message(self, payload):
+    async def notif_message(self, payload: dict):
         raw_data = payload.get('message', {})
         chat_id = payload.get('chatId')
         raw_data['chat_id'] = chat_id
@@ -72,7 +72,7 @@ class WebsocketMixin():
                 else:
                     handler(message=message)
 
-    async def notif_chat_action(self, payload):
+    async def notif_chat_action(self, payload: dict):
         type = payload.get('type')
         chat_id = payload.get('chatId')
         user_id = payload.get('userId')
@@ -133,7 +133,7 @@ class WebsocketMixin():
                 error_message = payload.get('localizedMessage', 'Неизвестная ошибка')
                 error_type = payload.get('error', 'Неизвестный тип ошибки')
                 if error_type == 'login.token':
-                    os.remove(Constants.DB_PATH)
+                    os.remove(f'{self.session_name}.db')
                 raise ApiError(f'{error_message} ({error_type})')
         except asyncio.CancelledError:
             if expected_seq in self._response_waiters:

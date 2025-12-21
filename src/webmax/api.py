@@ -1,11 +1,13 @@
 from typing import Tuple
 from . import payloads
+from .utils import credentials_utils
 from .static import ContactActions, Opcode
 from .entities import Chat, Element, FileAttach, Message, PhotoAttach, User, VideoAttach
 
 class ApiMixin():
     async def _send_call(self, opcode, payload):
-        payload = payload.to_dict()
+        if type(payload) != dict:
+            payload = payload.to_dict()
         response = await self.do_api_request(
             opcode=opcode,
             payload=payload
@@ -117,7 +119,7 @@ class ApiMixin():
         )
         return response_payload
 
-    async def get_contacts_info(self, contact_ids: list[int]) -> dict:
+    async def get_contacts_info(self, contact_ids: list[int]) -> list[User]:
         response_payload = await self._send_call(
             opcode=Opcode.CONTACT_INFO,
             payload=payloads.GetContactsInfo(
@@ -257,9 +259,13 @@ class ApiMixin():
         )
         return response_payload
 
-    async def close_all_sessions(self) -> dict:
+    async def close_all_sessions(self, save_token: bool = True) -> bool:
         response_payload = await self._send_call(
             opcode=Opcode.SESSIONS_CLOSE,
-            payload=payloads.CloseAllSessions
+            payload=payloads.CloseAllSessions()
         )
-        return response_payload
+
+        if save_token:
+            self.token = response_payload.get('token')
+            await credentials_utils.save(db=self.db, device_id=self.device_id, token=self.token, phone=self.phone)
+        return True

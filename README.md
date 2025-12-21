@@ -52,6 +52,7 @@ async def main():
         if message.sender:
             if message.sender.id != client.me.id:
                 try:
+                    # Автоответчик
                     await message.reply(
                         text=f'Привет, {message.sender.firstname}. Сейчас я занят, отвечу позже',
                         cid=int(time.time())

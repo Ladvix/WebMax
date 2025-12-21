@@ -354,7 +354,6 @@ class Chat:
         created = raw_data.get('created')
         last_event_time = raw_data.get('lastEventTime')
         messages_count = raw_data.get('messagesCount')
-        created = raw_data.get('created')
         admins = raw_data.get('admins')
         status = raw_data.get('status')
         restrictions = raw_data.get('restrictions')
@@ -366,6 +365,7 @@ class Chat:
         description = raw_data.get('description')
         invited_by = raw_data.get('invitedBy')
         link = raw_data.get('link')
+        last_message = None
 
         if raw_last_message:
             last_message = Message.from_raw_data(raw_data=raw_last_message, chat_id=id, client=client)
